@@ -78,7 +78,27 @@ export default function ChatBot() {
     setMessages(newMessages);
     const history = newMessages.slice(-10);
     const reply = await askQuestion(question, history);
-    if (reply === '__NO_KEY__' || reply === '__INVALID_KEY__') return;
+
+    if (reply === '__INVALID_KEY__') {
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        text: '⚠️ مفتاح الـ API غير صالح أو انتهت صلاحيته. يرجى إدخال مفتاح جديد من Google AI Studio.',
+        isError: true
+      }]);
+      // Reset hasKey so SetupScreen appears automatically
+      setTimeout(() => saveKey(''), 1500);
+      return;
+    }
+
+    if (reply === '__NO_KEY__') {
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        text: '🔑 لم يتم تفعيل الذكاء الاصطناعي بعد. أدخل مفتاح API للمتابعة.',
+        isError: true
+      }]);
+      return;
+    }
+
     setMessages(prev => [...prev, { role: 'assistant', text: reply }]);
   };
 
@@ -130,11 +150,19 @@ export default function ChatBot() {
                     )}
                     <Paper sx={{
                       px: 2.5, py: 1.5, maxWidth: '85%', borderRadius: 4,
-                      background: msg.role === 'user' ? 'linear-gradient(135deg, #006233, #004d28)' : 'white',
-                      color: msg.role === 'user' ? 'white' : '#1e293b',
+                      background: msg.isError
+                        ? 'linear-gradient(135deg, #7f1d1d, #991b1b)'
+                        : msg.role === 'user'
+                          ? 'linear-gradient(135deg, #006233, #004d28)'
+                          : 'white',
+                      color: (msg.role === 'user' || msg.isError) ? 'white' : '#1e293b',
                       borderBottomRightRadius: msg.role === 'user' ? 4 : 16,
                       borderBottomLeftRadius: msg.role === 'user' ? 16 : 4,
-                      boxShadow: msg.role === 'user' ? '0 4px 15px rgba(0,98,51,0.3)' : '0 4px 15px rgba(0,0,0,0.05)',
+                      boxShadow: msg.isError
+                        ? '0 4px 15px rgba(127,29,29,0.35)'
+                        : msg.role === 'user'
+                          ? '0 4px 15px rgba(0,98,51,0.3)'
+                          : '0 4px 15px rgba(0,0,0,0.05)',
                     }}>
                       <Typography fontSize="0.9rem" lineHeight={1.7} fontWeight={500} sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', '& strong': { color: msg.role === 'user' ? '#fff' : '#006233' } }}>
                         {msg.text}

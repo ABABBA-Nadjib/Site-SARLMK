@@ -84,7 +84,7 @@ export function useAI() {
       ];
 
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${key}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -96,10 +96,24 @@ export function useAI() {
         }
       );
 
-      if (res.status === 400 || res.status === 403) {
+      // 403 = key invalid/revoked, 401 = unauthorized → clear key
+      // 400 = bad request (could be content policy, not key issue)
+      if (res.status === 403 || res.status === 401) {
         clearKey();
         setLoading(false);
         return '__INVALID_KEY__';
+      }
+      if (res.status === 400) {
+        const errData = await res.json().catch(() => ({}));
+        const reason = errData?.error?.message || '';
+        // Only clear key if explicitly about API key
+        if (reason.toLowerCase().includes('api key')) {
+          clearKey();
+          return '__INVALID_KEY__';
+        }
+        // Otherwise treat as a temporary error and fallback
+        setLoading(false);
+        return ruleEngine(question);
       }
 
       if (!res.ok) {
