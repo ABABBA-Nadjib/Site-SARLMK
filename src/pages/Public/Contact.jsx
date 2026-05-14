@@ -1,104 +1,207 @@
-import React from 'react';
-import { Mail, Phone, MapPin, Printer, Send } from 'lucide-react';
+import React, { useState } from 'react';
+import {
+  Box, Container, Grid, Typography, TextField, Button,
+  Paper, Alert, Chip, CircularProgress
+} from '@mui/material';
+import { Helmet } from 'react-helmet-async';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import PhoneIcon from '@mui/icons-material/Phone';
+import EmailIcon from '@mui/icons-material/Email';
+import SendIcon from '@mui/icons-material/Send';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../../firebase/firebase';
 
-const Contact = () => {
+const emptyForm = { name: '', email: '', phone: '', subject: '', message: '' };
+
+export default function Contact() {
+  const [form, setForm] = useState(emptyForm);
+  const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      await addDoc(collection(db, 'contacts'), { ...form, createdAt: serverTimestamp(), status: 'unread' });
+      setSent(true);
+      setForm(emptyForm);
+    } catch (err) {
+      console.error(err);
+      setError('Erreur lors de l\'envoi. Veuillez réessayer ou appeler directement.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const contacts = [
+    { icon: LocationOnIcon, label: 'Adresse', value: 'Cité Ayad, Teyissebsa\nTouggourt, Algérie', color: '#006233' },
+    { icon: PhoneIcon, label: 'Téléphone', value: '+213 795 101 097', color: '#3b82f6' },
+    { icon: EmailIcon, label: 'Email', value: 'Fils-Makdoud@gmail.com', color: '#f59e0b' },
+  ];
+
+  const inputSx = {
+    '& .MuiOutlinedInput-root': {
+      borderRadius: 2,
+      '&:hover fieldset': { borderColor: '#006233' },
+      '&.Mui-focused fieldset': { borderColor: '#006233' },
+    },
+    '& .MuiInputLabel-root.Mui-focused': { color: '#006233' },
+  };
+
   return (
-    <div className="animate-fade" style={{ padding: '8rem 0' }}>
-      <div className="container">
-        <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
-          <h1 style={{ fontSize: '3.5rem', marginBottom: '1.5rem' }}>Get In Touch</h1>
-          <p style={{ color: 'var(--text-light)', fontSize: '1.25rem', maxWidth: '700px', margin: '0 auto' }}>
-            Have a project in mind or a question? Our team based in Touggourt is ready to assist you.
-          </p>
-        </div>
+    <>
+      <Helmet>
+        <title>Contact | SARL STE FI S MAKDOUD ENTREPRENEUR</title>
+        <meta name="description" content="Contactez SARL STE FI S MAKDOUD - Téléphone, email, adresse et formulaire de contact." />
+      </Helmet>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '4rem' }}>
-          {/* Contact Info */}
-          <div>
-            <div style={{ display: 'grid', gap: '2rem' }}>
-              {[
-                { 
-                  title: 'Head Office', 
-                  content: 'Cité Ayad, Teyissebsa\nTouggourt, Algeria', 
-                  icon: MapPin, 
-                  color: 'var(--accent)' 
-                },
-                { 
-                  title: 'Email Us', 
-                  content: 'Fils-Makdoud@gmail.com', 
-                  icon: Mail, 
-                  color: '#10b981' 
-                },
-                { 
-                  title: 'Call Us', 
-                  content: '+213 795 101 097', 
-                  icon: Phone, 
-                  color: '#3b82f6' 
-                },
-                { 
-                  title: 'Fax', 
-                  content: '32105556', 
-                  icon: Printer, 
-                  color: '#f59e0b' 
-                },
-              ].map((info, i) => (
-                <div key={i} className="card" style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start' }}>
-                  <div style={{ backgroundColor: info.color + '15', color: info.color, padding: '1rem', borderRadius: 'var(--radius-md)' }}>
-                    <info.icon size={24} />
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: '1.125rem', marginBottom: '0.5rem' }}>{info.title}</h3>
-                    <p style={{ color: 'var(--text-light)', whiteSpace: 'pre-line', fontSize: '0.9375rem', lineHeight: 1.6 }}>{info.content}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+      {/* Hero */}
+      <Box sx={{
+        py: 10, textAlign: 'center',
+        background: 'linear-gradient(135deg, #0a0f1e 0%, #0d1b2a 100%)',
+        color: 'white',
+      }}>
+        <Container maxWidth="md">
+          <Typography variant="h2" fontWeight={800} gutterBottom>Contactez-Nous</Typography>
+          <Typography color="rgba(255,255,255,0.65)" fontSize="1.1rem">
+            Notre équipe est disponible du dimanche au jeudi, 8h - 17h (GMT+1).
+          </Typography>
+        </Container>
+      </Box>
 
-            {/* Company Badge */}
-            <div className="card" style={{ marginTop: '2rem', padding: '1.5rem', borderLeft: '4px solid var(--accent)' }}>
-              <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>Company</p>
-              <p style={{ fontWeight: 700, fontSize: '1rem', margin: 0 }}>SARL STE FI S MAKDOUD ENTREPRENEUR</p>
-              <p style={{ color: 'var(--text-light)', fontSize: '0.875rem', marginTop: '0.25rem' }}>Director: Saïd Makdoud · Est. 1996</p>
-            </div>
-          </div>
+      <Container maxWidth="lg" sx={{ py: 10 }}>
+        <Grid container spacing={6}>
+          {/* Left: Info */}
+          <Grid item xs={12} md={4}>
+            <Typography variant="h5" fontWeight={800} gutterBottom color="#1a1a2e">
+              Informations de Contact
+            </Typography>
+            <Typography color="text.secondary" mb={4} lineHeight={1.8}>
+              Basée à Touggourt, SARL STE FI S MAKDOUD opère dans 6+ régions du sud algérien.
+              N'hésitez pas à nous contacter pour tout projet ou consultation.
+            </Typography>
 
-          {/* Contact Form */}
-          <div className="card" style={{ padding: '3rem' }}>
-            <h2 style={{ marginBottom: '2rem' }}>Send Us a Message</h2>
-            <form style={{ display: 'grid', gap: '1.5rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem' }}>Full Name</label>
-                  <input type="text" placeholder="Your name" style={{ width: '100%', padding: '0.875rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', outline: 'none' }} />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem' }}>Email Address</label>
-                  <input type="email" placeholder="your@email.com" style={{ width: '100%', padding: '0.875rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', outline: 'none' }} />
-                </div>
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem' }}>Subject</label>
-                <select style={{ width: '100%', padding: '0.875rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', outline: 'none', backgroundColor: 'white' }}>
-                  <option>Project Consultation</option>
-                  <option>General Inquiry</option>
-                  <option>Partnership</option>
-                  <option>Other</option>
-                </select>
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem' }}>Message</label>
-                <textarea rows="5" placeholder="How can we help you?" style={{ width: '100%', padding: '0.875rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', outline: 'none', resize: 'none' }}></textarea>
-              </div>
-              <button type="button" className="btn btn-primary" style={{ padding: '1rem', justifyContent: 'center', fontSize: '1rem' }}>
-                <Send size={18} />
-                Submit Inquiry
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
+            {contacts.map((c, i) => {
+              const Icon = c.icon;
+              return (
+                <Box key={i} sx={{ display: 'flex', gap: 2, mb: 3, alignItems: 'flex-start' }}>
+                  <Box sx={{
+                    width: 48, height: 48, borderRadius: 2, flexShrink: 0,
+                    bgcolor: `${c.color}15`, color: c.color,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <Icon />
+                  </Box>
+                  <Box>
+                    <Typography fontWeight={700} fontSize="0.875rem" color="text.secondary" mb={0.5}>{c.label}</Typography>
+                    <Typography fontWeight={600} color="#1a1a2e" sx={{ whiteSpace: 'pre-line' }}>{c.value}</Typography>
+                  </Box>
+                </Box>
+              );
+            })}
+
+            {/* Regions */}
+            <Box sx={{ mt: 4, p: 3, bgcolor: '#f8fafc', borderRadius: 3, border: '1px solid rgba(0,0,0,0.06)' }}>
+              <Typography fontWeight={700} fontSize="0.8rem" color="text.secondary" mb={2} textTransform="uppercase" letterSpacing="0.05em">
+                Zones d'Intervention
+              </Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                {['Touggourt', 'Ouargla', 'Hassi Messaoud', 'Adrar', 'El Oued', 'El Meniaa'].map((z, i) => (
+                  <Chip key={i} label={z} size="small" sx={{ bgcolor: '#e8f5e9', color: '#006233', fontWeight: 600 }} />
+                ))}
+              </Box>
+            </Box>
+
+            {/* Map placeholder */}
+            <Box sx={{
+              mt: 4, height: 200, borderRadius: 3, overflow: 'hidden',
+              background: 'linear-gradient(135deg, #e8f5e9, #f0fdf4)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              border: '1px solid rgba(0,98,51,0.1)',
+            }}>
+              <Box textAlign="center">
+                <LocationOnIcon sx={{ fontSize: 40, color: '#006233', mb: 1 }} />
+                <Typography fontWeight={700} color="#006233">Touggourt, Algérie</Typography>
+                <Typography fontSize="0.8rem" color="text.secondary">Cité Ayad, Teyissebsa</Typography>
+              </Box>
+            </Box>
+          </Grid>
+
+          {/* Right: Form */}
+          <Grid item xs={12} md={8}>
+            <Paper elevation={0} sx={{ p: 5, borderRadius: 4, border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 8px 40px rgba(0,0,0,0.07)' }}>
+              <Typography variant="h5" fontWeight={800} gutterBottom color="#1a1a2e">
+                Envoyez-nous un Message
+              </Typography>
+              <Typography color="text.secondary" mb={4}>
+                Remplissez le formulaire ci-dessous. Notre équipe vous répondra sous 24h.
+              </Typography>
+
+              {sent ? (
+                <Box sx={{ textAlign: 'center', py: 6 }}>
+                  <CheckCircleIcon sx={{ fontSize: 64, color: '#006233', mb: 2 }} />
+                  <Typography variant="h5" fontWeight={700} color="#006233" gutterBottom>
+                    Message envoyé avec succès!
+                  </Typography>
+                  <Typography color="text.secondary" mb={4}>
+                    Nous vous répondrons dans les 24 heures. Merci de nous avoir contactés.
+                  </Typography>
+                  <Button variant="outlined" onClick={() => setSent(false)} sx={{ borderColor: '#006233', color: '#006233' }}>
+                    Envoyer un autre message
+                  </Button>
+                </Box>
+              ) : (
+                <Box component="form" onSubmit={handleSubmit} noValidate>
+                  {error && <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>{error}</Alert>}
+                  <Grid container spacing={2.5}>
+                    <Grid item xs={12} sm={6}>
+                      <TextField fullWidth required label="Nom Complet" name="name" value={form.name}
+                        onChange={handleChange} sx={inputSx} />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField fullWidth required label="Email" name="email" type="email" value={form.email}
+                        onChange={handleChange} sx={inputSx} />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField fullWidth label="Téléphone" name="phone" value={form.phone}
+                        onChange={handleChange} sx={inputSx} placeholder="+213 ..." />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField fullWidth required label="Sujet" name="subject" value={form.subject}
+                        onChange={handleChange} sx={inputSx} placeholder="Construction, Devis, Partenariat..." />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField fullWidth required multiline rows={5} label="Votre Message"
+                        name="message" value={form.message} onChange={handleChange} sx={inputSx}
+                        placeholder="Décrivez votre projet ou votre demande..." />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Button
+                        type="submit" variant="contained" fullWidth size="large"
+                        disabled={loading}
+                        startIcon={loading ? <CircularProgress size={20} sx={{ color: 'white' }} /> : <SendIcon />}
+                        sx={{
+                          py: 1.8, fontSize: '1rem', fontWeight: 700, borderRadius: 3,
+                          background: 'linear-gradient(135deg, #006233, #00a651)',
+                          boxShadow: '0 6px 20px rgba(0,98,51,0.35)',
+                          '&:hover': { background: 'linear-gradient(135deg, #005228, #008c45)' },
+                        }}
+                      >
+                        {loading ? 'Envoi en cours...' : 'Envoyer le Message'}
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </Box>
+              )}
+            </Paper>
+          </Grid>
+        </Grid>
+      </Container>
+    </>
   );
-};
-
-export default Contact;
+}

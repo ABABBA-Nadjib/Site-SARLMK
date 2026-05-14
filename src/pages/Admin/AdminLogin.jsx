@@ -1,19 +1,42 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ShieldCheck, Lock, Mail, ArrowRight, HardHat } from 'lucide-react';
+import { ShieldCheck, Lock, Mail, HardHat, AlertCircle, Loader } from 'lucide-react';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../firebase/firebase';
+import { useAuth } from '../../contexts/AuthContext';
 
 const AdminLogin = () => {
-  const [email, setEmail] = useState('');
+  const { setUser } = useAuth();
+  const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError]       = useState('');
+  const [loading, setLoading]   = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // In a real app, this would call Firebase
-    if (email === 'admin@binaatech.com' && password === 'admin123') {
+    setError('');
+    setLoading(true);
+
+    // Fallback local pour le développement si Firebase n'est pas configuré
+    // ou pour tester avec des identifiants par défaut
+    if (email.trim() === 'admin@makdoud-btp.dz' && password.trim() === 'admin123') {
+      setTimeout(() => {
+        setUser({ uid: 'mock-admin', email: email.trim(), displayName: 'Admin Makdoud' });
+        setLoading(false);
+        navigate('/admin/dashboard');
+      }, 800);
+      return;
+    }
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
       navigate('/admin/dashboard');
-    } else {
-      alert('Invalid credentials. Use admin@binaatech.com / admin123');
+    } catch (err) {
+      console.error("Erreur Firebase:", err);
+      setError('Identifiants incorrects. Veuillez réessayer.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -23,35 +46,53 @@ const AdminLogin = () => {
       display: 'flex', 
       alignItems: 'center', 
       justifyContent: 'center',
-      padding: '2rem'
+      padding: '2rem',
+      background: 'linear-gradient(135deg, rgba(0,18,8,0.03) 0%, rgba(0,98,51,0.05) 100%)'
     }}>
       <div className="card" style={{ 
         width: '100%', 
         maxWidth: '450px', 
         padding: '3rem',
         boxShadow: 'var(--shadow-lg)',
-        border: 'none'
+        border: '1px solid rgba(0,98,51,0.1)'
       }}>
+        {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
           <div style={{ 
             backgroundColor: 'var(--primary)', 
-            width: '64px', 
-            height: '64px', 
+            width: '70px', height: '70px', 
             borderRadius: 'var(--radius-md)', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
             margin: '0 auto 1.5rem'
           }}>
-            <HardHat size={32} color="var(--secondary)" />
+            <HardHat size={34} color="white" />
           </div>
-          <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Partner Portal</h1>
-          <p style={{ color: 'var(--text-light)', fontSize: '0.9375rem' }}>Secure access for BinaaTech administrators.</p>
+          <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Portail ERP</h1>
+          <p style={{ color: 'var(--text-light)', fontSize: '0.9375rem' }}>
+            Accès sécurisé — SARL STE FI S MAKDOUD
+          </p>
         </div>
 
+        {/* Error Banner */}
+        {error && (
+          <div style={{ 
+            display: 'flex', alignItems: 'center', gap: '0.75rem',
+            padding: '1rem', backgroundColor: '#fff1f2', 
+            border: '1px solid #fecdd3', borderRadius: 'var(--radius-md)',
+            color: '#be123c', fontSize: '0.875rem', fontWeight: 600,
+            marginBottom: '1.5rem'
+          }}>
+            <AlertCircle size={18} />
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleLogin} style={{ display: 'grid', gap: '1.5rem' }}>
+          {/* Email */}
           <div>
-            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem' }}>Professional Email</label>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem' }}>
+              Adresse Email
+            </label>
             <div style={{ position: 'relative' }}>
               <Mail size={18} color="var(--text-light)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
               <input 
@@ -59,24 +100,21 @@ const AdminLogin = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@binaatech.com" 
+                placeholder="admin@makdoud-btp.dz" 
                 style={{ 
-                  width: '100%', 
-                  padding: '0.875rem 1rem 0.875rem 3rem', 
-                  borderRadius: 'var(--radius-sm)', 
-                  border: '1px solid var(--border)', 
-                  outline: 'none',
-                  fontSize: '0.9375rem'
+                  width: '100%', padding: '0.875rem 1rem 0.875rem 3rem', 
+                  borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', 
+                  outline: 'none', fontSize: '0.9375rem', boxSizing: 'border-box'
                 }} 
               />
             </div>
           </div>
 
+          {/* Password */}
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-              <label style={{ fontSize: '0.875rem', fontWeight: 600 }}>Password</label>
-              <Link to="#" style={{ fontSize: '0.75rem', color: 'var(--accent)', fontWeight: 600 }}>Forgot Access?</Link>
-            </div>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem' }}>
+              Mot de Passe
+            </label>
             <div style={{ position: 'relative' }}>
               <Lock size={18} color="var(--text-light)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
               <input 
@@ -86,31 +124,28 @@ const AdminLogin = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••" 
                 style={{ 
-                  width: '100%', 
-                  padding: '0.875rem 1rem 0.875rem 3rem', 
-                  borderRadius: 'var(--radius-sm)', 
-                  border: '1px solid var(--border)', 
-                  outline: 'none',
-                  fontSize: '0.9375rem'
+                  width: '100%', padding: '0.875rem 1rem 0.875rem 3rem', 
+                  borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', 
+                  outline: 'none', fontSize: '0.9375rem', boxSizing: 'border-box'
                 }} 
               />
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-            <input type="checkbox" id="remember" style={{ cursor: 'pointer' }} />
-            <label htmlFor="remember" style={{ fontSize: '0.875rem', color: 'var(--text-light)', cursor: 'pointer' }}>Remember this device</label>
-          </div>
-
-          <button type="submit" className="btn btn-primary" style={{ padding: '1rem', fontSize: '1rem', fontWeight: 700 }}>
-            <ShieldCheck size={20} />
-            Authorize Login
+          {/* Submit */}
+          <button 
+            type="submit" 
+            className="btn btn-primary" 
+            style={{ padding: '1rem', fontSize: '1rem', fontWeight: 700, opacity: loading ? 0.7 : 1 }}
+            disabled={loading}
+          >
+            {loading ? <Loader size={20} className="spin" /> : <ShieldCheck size={20} />}
+            {loading ? 'Connexion en cours...' : 'Se Connecter'}
           </button>
         </form>
 
-        <div style={{ marginTop: '2.5rem', textAlign: 'center', fontSize: '0.8125rem', color: 'var(--text-light)' }}>
-          By accessing the portal, you agree to our <br />
-          <Link to="#" style={{ fontWeight: 600, color: 'var(--primary)' }}>Internal Security Guidelines</Link>
+        <div style={{ marginTop: '2rem', textAlign: 'center', fontSize: '0.8125rem', color: 'var(--text-light)' }}>
+          Accès réservé aux administrateurs autorisés.
         </div>
       </div>
     </div>

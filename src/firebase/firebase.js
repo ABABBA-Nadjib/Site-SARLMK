@@ -2,14 +2,13 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
-// استبدل هذه القيم بالقيم التي نسختها من لوحة تحكم Firebase
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY", // يجب أن تضع الـ Key الحقيقي هنا
-  authDomain: "site-a9b75.firebaseapp.com",
-  projectId: "site-a9b75",
-  storageBucket: "site-a9b75.appspot.com",
-  messagingSenderId: "415039659747",
-  appId: "YOUR_APP_ID" // يجب أن تضع الـ App ID الحقيقي هنا
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "site-a9b75.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "site-a9b75",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "site-a9b75.appspot.com",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "415039659747",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 const app = initializeApp(firebaseConfig);
