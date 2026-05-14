@@ -146,41 +146,82 @@ const pick  = (t, ar, fr, en) => ({ ar, fr, en }[lang(t)]);
 function ruleEngine(input) {
   const t = input.toLowerCase();
 
+  // Greetings
   if (/^(hi|hello|hey|good\s|bonjour|salut|bonsoir|salam|مرحب|اهلا|السلام|صباح|مساء)/.test(t)) {
     return pick(t,
-      `مرحباً! 👋 أنا المساعد الذكي لشركة SARL STE FI S MAKDOUD.\nيمكنني مساعدتك في: خدماتنا، مشاريعنا، طريقة العمل، أو التواصل. ما الذي تودّ معرفته؟`,
-      `Bonjour! 👋 Je suis l'assistant de SARL STE FI S MAKDOUD.\nJe peux vous renseigner sur: nos services, projets, processus ou contact. Que souhaitez-vous savoir?`,
-      `Hello! 👋 I'm the AI assistant for SARL STE FI S MAKDOUD.\nI can help you with: our services, projects, work process, or contact. What would you like to know?`
+      `مرحباً! 👋 أنا المساعد الذكي لشركة SARL STE FI S MAKDOUD.\nأنا هنا لتقديم معلومات دقيقة حول الشركة. هل تود معرفة تفاصيل حول خدماتنا، مشاريعنا المنجزة (150+ مشروع)، أو الرواتب والتوظيف؟`,
+      `Bonjour! 👋 Je suis l'assistant intelligent de SARL STE FI S MAKDOUD.\nJe suis là pour fournir des informations précises sur l'entreprise. Souhaitez-vous des détails sur nos services, nos projets réalisés (150+ projets), ou sur les salaires et le recrutement?`,
+      `Hello! 👋 I'm the smart assistant for SARL STE FI S MAKDOUD.\nI can provide detailed information about the company. Would you like to know about our services, completed projects (150+), or salaries and recruitment?`
     );
   }
 
-  if (/(طريق|كيف.*عمل|كيف.*تعمل|آلية|مراحل|خطوات|process|fonctionn|comment.*travail|étape|procédure|how.*work)/.test(t)) {
+  // Projects count
+  if (/(projet|project|كم مشروع|مشاريع|réalis)/.test(t)) {
     return pick(t,
-      `⚙️ **طريقة عملنا:**\n1️⃣ **التواصل** — تشرح متطلبات مشروعك\n2️⃣ **الدراسة** — نعدّ عرضاً تقنياً ومالياً\n3️⃣ **التعاقد** — توقيع العقد\n4️⃣ **التنفيذ** — العمل الميداني مع متابعة\n5️⃣ **التسليم** — التسليم النهائي`,
-      `⚙️ **Processus:**\n1️⃣ **Contact** — Vous présentez vos besoins\n2️⃣ **Étude** — Nous préparons une offre\n3️⃣ **Contrat** — Signature\n4️⃣ **Exécution** — Travaux sur site\n5️⃣ **Livraison** — Remise finale`,
-      `⚙️ **Process:**\n1️⃣ **Contact** — Present your needs\n2️⃣ **Study** — We prepare an offer\n3️⃣ **Contract** — Signing\n4️⃣ **Execution** — On-site work\n5️⃣ **Delivery** — Final handover`
+      `🏗️ **مشاريعنا:**\nلقد أنجزنا بنجاح **أكثر من 150 مشروعاً كبيراً** خلال أكثر من 30 عاماً من الخبرة. نحن نتعامل مع كبار العملاء مثل **Sonatrach** و **Schlumberger** بالإضافة إلى شركات البناء الوطنية في قطاعات البنية التحتية، الطرق، والنفط والغاز.`,
+      `🏗️ **Nos Projets:**\nNous avons réalisé avec succès **plus de 150 grands projets** au cours de nos 30+ années d'expérience. Nous travaillons avec des clients majeurs comme **Sonatrach** et **Schlumberger**, ainsi que des entreprises nationales dans l'infrastructure, les routes et le secteur pétrolier.`,
+      `🏗️ **Our Projects:**\nWe have successfully completed **over 150 major projects** over 30+ years. We work with major clients like **Sonatrach** and **Schlumberger**, as well as national construction companies in infrastructure, roads, and the oil & gas sector.`
     );
   }
 
+  // Employees count / size
+  if (/(عامل|عمال|موظف|employ|worker|staff|كم عمالكم|effectif)/.test(t)) {
+    return pick(t,
+      `👥 **فريق العمل:**\nتضم شركتنا حالياً **أكثر من 450 موظفاً وعاملاً** من ذوي الكفاءة، وندير أسطولاً يضم **أكثر من 85 آلة وشاحنة ثقيلة** لتنفيذ مشاريعنا بكفاءة عالية في جنوب الجزائر.`,
+      `👥 **Notre Équipe:**\nNotre entreprise compte actuellement **plus de 450 employés et ouvriers** qualifiés. Nous gérons également un parc de **plus de 85 engins et camions lourds** pour exécuter nos projets efficacement dans le sud de l'Algérie.`,
+      `👥 **Our Team:**\nOur company currently employs **over 450 skilled workers and staff**. We also manage a fleet of **over 85 heavy machines and trucks** to efficiently execute our projects in southern Algeria.`
+    );
+  }
+
+  // Salaries / Pay
+  if (/(راتب|رواتب|أجر|اجر|خلص|salary|salari|paye|rémunération|wage)/.test(t)) {
+    return pick(t,
+      `💰 **نطاق الرواتب التقريبي (دينار جزائري - DZD):**\nالرواتب تعتمد على الخبرة وموقع العمل (مثل قواعد الحياة في الصحراء):\n• **العمال البسطاء:** 35,000 - 50,000 د.ج\n• **العمال المؤهلون (بناء، لحام):** 50,000 - 80,000 د.ج\n• **سائقو الآليات الثقيلة:** 60,000 - 120,000 د.ج (ترتفع في حقول النفط)\n• **المهندسون والتقنيون:** 70,000 - 150,000 د.ج\n• **الإدارة والمهندسون الكبار:** 100,000 - 250,000+ د.ج`,
+      `💰 **Fourchette de Salaires Estimée (DZD):**\nLes salaires dépendent de l'expérience et du lieu (ex: bases de vie au sud):\n• **Manoeuvres:** 35,000 - 50,000 DZD\n• **Ouvriers Qualifiés (Maçons, Soudeurs):** 50,000 - 80,000 DZD\n• **Conducteurs d'Engins:** 60,000 - 120,000 DZD (plus élevé sur champs pétroliers)\n• **Ingénieurs & Techniciens:** 70,000 - 150,000 DZD\n• **Management & Ingénieurs Seniors:** 100,000 - 250,000+ DZD`,
+      `💰 **Estimated Salary Ranges (DZD):**\nSalaries depend on experience and location (e.g., desert bases):\n• **Simple Workers:** 35,000 - 50,000 DZD\n• **Skilled Workers:** 50,000 - 80,000 DZD\n• **Heavy Machine Drivers:** 60,000 - 120,000 DZD (higher in oil fields)\n• **Engineers & Technicians:** 70,000 - 150,000 DZD\n• **Management:** 100,000 - 250,000+ DZD`
+    );
+  }
+
+  // Work Process
+  if (/(طريق|كيف.*عمل|كيف.*تعمل|آلية|مراحل|خطوات|process|fonctionn|comment.*travail|étape|procédure|how.*work|اشرح لي عملكم)/.test(t)) {
+    return pick(t,
+      `⚙️ **طريقة عملنا المنهجية:**\n1️⃣ **التواصل وتقييم الاحتياجات:** نستمع إليك ونحلل متطلبات مشروعك بدقة.\n2️⃣ **الدراسة التقنية والمالية:** يقوم خبراؤنا بإعداد عرض متكامل.\n3️⃣ **التعاقد:** توقيع العقود بوضوح وشفافية.\n4️⃣ **التنفيذ:** عمل ميداني مع متابعة يومية لضمان الجودة ومعايير السلامة.\n5️⃣ **التسليم:** تسليم المشروع النهائي وفق المواعيد المحددة.`,
+      `⚙️ **Notre Processus Méthodique:**\n1️⃣ **Contact & Évaluation:** Nous analysons vos besoins avec précision.\n2️⃣ **Étude Technique & Financière:** Nos experts préparent une offre complète.\n3️⃣ **Contrat:** Signature avec clarté et transparence.\n4️⃣ **Exécution:** Travail sur site avec suivi quotidien (Qualité/HSE).\n5️⃣ **Livraison:** Remise du projet final dans les délais impartis.`,
+      `⚙️ **Our Methodical Process:**\n1️⃣ **Contact & Assessment:** We analyze your project needs accurately.\n2️⃣ **Technical & Financial Study:** Our experts prepare a comprehensive offer.\n3️⃣ **Contract:** Signing with clarity and transparency.\n4️⃣ **Execution:** On-site work with daily monitoring for quality and safety.\n5️⃣ **Delivery:** Handover of the final project on schedule.`
+    );
+  }
+
+  // Locations / Regions
   if (/(ولاي|منطق|أين.*تعمل|أين.*تتواجد|region|wilaya|zone|couvert|où.*opér|where.*operat)/.test(t)) {
     return pick(t,
-      `🗺️ نعمل في 6 ولايات بالجنوب الجزائري:\n📍 تقرت | ورقلة | حاسي مسعود | أدرار | الوادي | المنيعة`,
-      `🗺️ Nous opérons dans 6 wilayas du sud algérien:\n📍 Touggourt | Ouargla | Hassi Messaoud | Adrar | El Oued | El Meniaa`,
-      `🗺️ We operate in 6 southern Algerian regions:\n📍 Touggourt | Ouargla | Hassi Messaoud | Adrar | El Oued | El Meniaa`
+      `🗺️ **مناطق عملياتنا:**\nنحن نتمركز بشكل أساسي في **Cité Ayad, Teyissebsa, تقرت**، وننفذ عمليات واسعة النطاق في 6 ولايات رئيسية في الجنوب الجزائري:\n📍 تقرت | ورقلة | حاسي مسعود | أدرار | الوادي | المنيعة`,
+      `🗺️ **Nos Zones d'Opération:**\nNotre siège est à **Cité Ayad, Teyissebsa, Touggourt**, et nous menons des opérations à grande échelle dans 6 wilayas majeures du sud algérien:\n📍 Touggourt | Ouargla | Hassi Messaoud | Adrar | El Oued | El Meniaa`,
+      `🗺️ **Our Operating Areas:**\nWe are headquartered in **Cité Ayad, Teyissebsa, Touggourt**, and conduct large-scale operations across 6 major southern Algerian regions:\n📍 Touggourt | Ouargla | Hassi Messaoud | Adrar | El Oued | El Meniaa`
     );
   }
 
+  // Services
   if (/(خدم|نشاط|تخصص|ماذا.*تقدم|service|activit|qu.*offrez|what.*offer)/.test(t)) {
     return pick(t,
-      `🏗️ خدماتنا:\n• إنشاء الطرق\n• الهندسة المدنية\n• خدمات البترول والغاز\n• التطوير الحضري\n• الأنابيب`,
-      `🏗️ Nos services:\n• Construction de routes\n• Génie civil\n• Services pétrole & gaz\n• Développement urbain\n• Pipelines`,
-      `🏗️ Our services:\n• Road construction\n• Civil engineering\n• Oil & Gas services\n• Urban development\n• Pipelines`
+      `🏗️ **خدماتنا الأساسية:**\nنحن شركة رائدة بخبرة تزيد عن 30 عاماً في مجالات البناء والأشغال العمومية:\n• إنشاء وتمهيد الطرق\n• الهندسة المدنية وتشييد المباني\n• تجهيز وصيانة منشآت النفط والغاز\n• التطوير والتهيئة الحضرية\n• شبكات المياه والأنابيب`,
+      `🏗️ **Nos Services Principaux:**\nNous sommes une entreprise leader avec plus de 30 ans d'expérience dans le BTP:\n• Construction et revêtement de routes\n• Génie civil et construction de bâtiments\n• Préparation et maintenance des installations Pétrole & Gaz\n• Développement et aménagement urbain\n• Réseaux d'eau et pipelines`,
+      `🏗️ **Our Core Services:**\nWe are a leading company with over 30 years of experience in construction and public works:\n• Road construction & paving\n• Civil engineering & building construction\n• Oil & Gas facilities preparation & maintenance\n• Urban development & landscaping\n• Water networks & pipelines`
     );
   }
 
+  // Contact Info
+  if (/(اتصال|تواصل|رقم|هاتف|ايميل|contact|téléphone|téléphon|numéro|email|mail)/.test(t)) {
+    return pick(t,
+      `📞 **معلومات التواصل:**\nالمدير العام: سعيد مقدود\n• الهاتف: +213 795 101 097\n• الفاكس: 32 10 55 56\n• البريد الإلكتروني: Fils-Makdoud@gmail.com`,
+      `📞 **Informations de Contact:**\nDirecteur Général: Saïd Makdoud\n• Tél: +213 795 101 097\n• Fax: 32 10 55 56\n• Email: Fils-Makdoud@gmail.com`,
+      `📞 **Contact Information:**\nGeneral Director: Saïd Makdoud\n• Phone: +213 795 101 097\n• Fax: 32 10 55 56\n• Email: Fils-Makdoud@gmail.com`
+    );
+  }
+
+  // Default Fallback
   return pick(t,
-    `شكراً لسؤالك. للحصول على تفاصيل دقيقة، يرجى التواصل معنا مباشرة:\n📞 +213 795 101 097\n📧 Fils-Makdoud@gmail.com`,
-    `Merci pour votre question. Pour des détails précis, veuillez nous contacter:\n📞 +213 795 101 097\n📧 Fils-Makdoud@gmail.com`,
-    `Thanks for asking. For exact details, please contact us:\n📞 +213 795 101 097\n📧 Fils-Makdoud@gmail.com`
+    `شكراً لتواصلك. أنا المساعد الذكي، لست متأكداً من الإجابة الدقيقة على سؤالك. يرجى التواصل مع إدارتنا مباشرة للحصول على تفاصيل أكثر:\n📞 +213 795 101 097\n📧 Fils-Makdoud@gmail.com`,
+    `Merci pour votre message. En tant qu'assistant IA, je n'ai pas la réponse précise à cette question. Veuillez contacter notre administration pour plus de détails:\n📞 +213 795 101 097\n📧 Fils-Makdoud@gmail.com`,
+    `Thank you for reaching out. As an AI assistant, I don't have the exact answer to this. Please contact our management for more details:\n📞 +213 795 101 097\n📧 Fils-Makdoud@gmail.com`
   );
 }
