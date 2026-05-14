@@ -1,99 +1,109 @@
-import { collection, addDoc, writeBatch } from 'firebase/firestore';
+import { collection, doc, setDoc, writeBatch } from 'firebase/firestore';
 import { db } from './firebase';
 
-const MOCK_WORKERS = [
-  { name: 'Ahmed Benali', role: 'Ingenieur Civil', site: 'Route Hassi Messaoud', status: 'Active', salary: 120000, joinDate: '2019-03-15' },
-  { name: 'Youssef Mansouri', role: 'Chef de Chantier', site: 'Pipeline Adrar', status: 'Active', salary: 150000, joinDate: '2018-06-20' },
-  { name: 'Karim Saidi', role: 'Conducteur d\'Engins', site: 'Facility Petroliere Ouargla', status: 'Active', salary: 90000, joinDate: '2020-01-10' },
-  { name: 'Tarek Ziani', role: 'Macon Qualifie', site: 'Developpement Urbain Touggourt', status: 'Active', salary: 65000, joinDate: '2021-08-05' },
-  { name: 'Omar Khelil', role: 'Soudeur', site: 'Pipeline Adrar', status: 'Active', salary: 85000, joinDate: '2020-11-12' },
-  { name: 'Samir Brahimi', role: 'Manoeuvre', site: 'Route El Oued', status: 'Active', salary: 45000, joinDate: '2022-02-18' },
-  { name: 'Nadir Belkacem', role: 'Ingenieur Topographe', site: 'Route El Meniaa', status: 'On Leave', salary: 110000, joinDate: '2019-09-01' },
-  { name: 'Walid Haddad', role: 'Mecanicien', site: 'Atelier Central Touggourt', status: 'Active', salary: 75000, joinDate: '2017-05-30' },
-  { name: 'Lamine Djabou', role: 'Conducteur Grue', site: 'Facility Petroliere Ouargla', status: 'Active', salary: 115000, joinDate: '2016-12-04' },
-  { name: 'Ali Bougherra', role: 'Electricien', site: 'Developpement Urbain Touggourt', status: 'Active', salary: 70000, joinDate: '2021-04-14' },
-  { name: 'Hassan Yebda', role: 'Manoeuvre', site: 'Route Hassi Messaoud', status: 'Terminated', salary: 40000, joinDate: '2023-01-10' },
-  { name: 'Riyad Mahrez', role: 'Ingenieur HSE', site: 'Facility Petroliere Ouargla', status: 'Active', salary: 140000, joinDate: '2018-10-22' },
-  // Additional Workers
-  { name: 'Ismail Bennacer', role: 'Technicien Superieur', site: 'Route Hassi Messaoud', status: 'Active', salary: 85000, joinDate: '2021-07-15' },
-  { name: 'Aissa Mandi', role: 'Conducteur Niveleuse', site: 'Route El Meniaa', status: 'Active', salary: 95000, joinDate: '2019-11-20' },
-  { name: 'Baghdad Bounedjah', role: 'Macon', site: 'Developpement Urbain Touggourt', status: 'Active', salary: 55000, joinDate: '2022-05-05' },
-  { name: 'Youcef Belaili', role: 'Manoeuvre', site: 'Pipeline Adrar', status: 'On Leave', salary: 42000, joinDate: '2023-02-11' },
-  { name: 'Islam Slimani', role: 'Chef d\'Equipe', site: 'Route El Oued', status: 'Active', salary: 105000, joinDate: '2015-08-30' },
-  { name: 'Ramiz Zerrouki', role: 'Soudeur Homologue', site: 'Facility Petroliere Ouargla', status: 'Active', salary: 110000, joinDate: '2020-03-25' },
-  { name: 'Sofiane Feghouli', role: 'Ingenieur Qualite', site: 'Pipeline Adrar', status: 'Active', salary: 135000, joinDate: '2017-09-14' },
-  { name: 'Djamel Benlamri', role: 'Agent de Securite', site: 'Atelier Central Touggourt', status: 'Active', salary: 45000, joinDate: '2021-01-05' },
-  { name: 'Ramy Bensebaini', role: 'Conducteur Bulldozer', site: 'Route Hassi Messaoud', status: 'Terminated', salary: 98000, joinDate: '2018-12-10' },
-  { name: 'Houcine Benayada', role: 'Mecanicien Engins', site: 'Atelier Central Touggourt', status: 'Active', salary: 80000, joinDate: '2019-04-18' },
-  { name: 'Adem Zorgane', role: 'Aide Macon', site: 'Developpement Urbain Touggourt', status: 'Active', salary: 38000, joinDate: '2023-07-20' },
-  { name: 'Haris Belkebla', role: 'Topographe', site: 'Route El Meniaa', status: 'Active', salary: 88000, joinDate: '2020-08-08' },
-  { name: 'Said Benrahma', role: 'Peintre', site: 'Developpement Urbain Touggourt', status: 'Active', salary: 50000, joinDate: '2022-10-12' },
-  { name: 'Amine Gouiri', role: 'Conducteur Compacteur', site: 'Route El Oued', status: 'On Leave', salary: 75000, joinDate: '2021-05-30' },
-  { name: 'Houssem Aouar', role: 'Electricien Industriel', site: 'Facility Petroliere Ouargla', status: 'Active', salary: 95000, joinDate: '2019-02-14' },
-  { name: 'Nabil Bentaleb', role: 'Ingenieur Planification', site: 'Pipeline Adrar', status: 'Active', salary: 145000, joinDate: '2016-11-05' },
-  { name: 'Yassine Brahimi', role: 'Chef Magasinier', site: 'Atelier Central Touggourt', status: 'Active', salary: 70000, joinDate: '2018-04-22' },
-  { name: 'Fares Chaibi', role: 'Manoeuvre', site: 'Route Hassi Messaoud', status: 'Active', salary: 45000, joinDate: '2023-09-01' },
+const MOCK_EMPLOYEES = [
+  { name: 'علي بن سالم', role: 'مهندس مدني', phone: '0555123456', joinDate: '2015-03-10', salary: 120000, status: 'نشط' },
+  { name: 'فاطمة الزهراء بوليفة', role: 'محاسبة', phone: '0555234567', joinDate: '2018-07-22', salary: 85000, status: 'نشط' },
+  { name: 'خالد دراجي', role: 'سائق آلة ثقيلة', phone: '0555345678', joinDate: '2012-11-01', salary: 95000, status: 'نشط' },
+  { name: 'سعيد معمري', role: 'كهربائي مواقع', phone: '0555456789', joinDate: '2020-02-15', salary: 65000, status: 'نشط' },
+  { name: 'نور الدين حاجي', role: 'سباك', phone: '0555567890', joinDate: '2019-09-30', salary: 60000, status: 'في إجازة' },
+  { name: 'أمينة خليفي', role: 'مسيرة مشاريع', phone: '0555678901', joinDate: '2016-05-18', salary: 140000, status: 'نشط' },
+  { name: 'رابح عباسي', role: 'عامل بناء', phone: '0555789012', joinDate: '2021-01-10', salary: 45000, status: 'نشط' },
+  { name: 'صليحة حمرون', role: 'أمينة مستودع', phone: '0555890123', joinDate: '2017-12-05', salary: 55000, status: 'نشط' },
+  { name: 'كمال ناصري', role: 'مشغل خلاطة إسمنت', phone: '0555901234', joinDate: '2020-08-20', salary: 70000, status: 'نشط' },
+  { name: 'جميلة ساحلي', role: 'مساعدة إدارية', phone: '0556012345', joinDate: '2019-04-12', salary: 50000, status: 'نشط' },
+  { name: 'عبد الرحمان بن عودة', role: 'ميكانيكي آلات', phone: '0556123456', joinDate: '2014-06-25', salary: 90000, status: 'نشط' },
+  { name: 'مليكة عوني', role: 'مسؤولة جودة', phone: '0556234567', joinDate: '2018-10-07', salary: 80000, status: 'في إجازة' },
+  { name: 'ياسين مقران', role: 'جيولوجي مواقع', phone: '0556345678', joinDate: '2022-02-28', salary: 75000, status: 'نشط' },
+  { name: 'حسيبة طيبي', role: 'مشرفة صحة وسلامة', phone: '0556456789', joinDate: '2015-09-14', salary: 88000, status: 'نشط' },
+  { name: 'الطاهر بوجمعة', role: 'سائق شاحنة', phone: '0556567890', joinDate: '2016-11-20', salary: 70000, status: 'غير نشط' },
+  { name: 'نادية شنتوف', role: 'محاسبة تكاليف', phone: '0556678901', joinDate: '2020-06-03', salary: 95000, status: 'نشط' },
+  { name: 'يوسف بديدة', role: 'رئيس عمال', phone: '0556789012', joinDate: '2013-07-19', salary: 100000, status: 'نشط' },
+  { name: 'حنان دحماني', role: 'كاتبة مشتريات', phone: '0556890123', joinDate: '2019-01-22', salary: 52000, status: 'نشط' },
+  { name: 'مراد شيباني', role: 'مشغل حفارة', phone: '0556901234', joinDate: '2017-04-16', salary: 80000, status: 'نشط' },
+  { name: 'نبيلة بوهالي', role: 'منسقة موارد بشرية', phone: '0557012345', joinDate: '2021-09-09', salary: 72000, status: 'نشط' }
 ];
 
 const MOCK_PROJECTS = [
-  { name: 'Route Nationale Hassi Messaoud', client: 'Ministere des Travaux Publics', budget: 150000000, progress: 85, status: 'Active', startDate: '2023-01-15', deadline: '2024-12-30' },
-  { name: 'Renovation Pipeline Adrar', client: 'Sonatrach', budget: 320000000, progress: 45, status: 'Active', startDate: '2023-06-01', deadline: '2025-06-01' },
-  { name: 'Developpement Urbain Touggourt', client: 'Wilaya de Touggourt', budget: 85000000, progress: 95, status: 'Active', startDate: '2022-11-10', deadline: '2024-05-30' },
-  { name: 'Facility Petroliere Ouargla', client: 'Schlumberger', budget: 450000000, progress: 30, status: 'Active', startDate: '2024-02-01', deadline: '2026-02-01' },
-  { name: 'Route Secondaire El Oued', client: 'Direction TP', budget: 60000000, progress: 100, status: 'Completed', startDate: '2022-01-15', deadline: '2023-08-20' },
-  { name: 'Pont El Meniaa', client: 'Ministere des Travaux Publics', budget: 120000000, progress: 15, status: 'On Hold', startDate: '2024-04-10', deadline: '2025-10-15' },
-  { name: 'Base de Vie Hassi Berkine', client: 'Sonatrach', budget: 210000000, progress: 60, status: 'Active', startDate: '2023-09-01', deadline: '2025-03-30' },
-  { name: 'Station Epuration Touggourt', client: 'ONA', budget: 180000000, progress: 10, status: 'Active', startDate: '2024-01-15', deadline: '2026-06-30' },
+  { title: 'ازدواجية الطريق الوطني رقم 1 (تقرت - حاسي مسعود)', client: 'وزارة النقل', startDate: '2023-02-01', deadline: '2025-06-30', budget: 3200000000, status: 'قيد التنفيذ' },
+  { title: 'إنجاز سد تيلاتو (ولاية تقرت)', client: 'وزارة الموارد المائية', startDate: '2024-01-15', deadline: '2027-12-31', budget: 8500000000, status: 'قيد التنفيذ' },
+  { title: 'ترميم قصر الحاج أحمد باي (عنابة)', client: 'وزارة الثقافة', startDate: '2023-09-01', deadline: '2024-08-31', budget: 450000000, status: 'قيد التنفيذ' },
+  { title: 'بناء مجمع سكني 600 مسكن (ورقلة)', client: 'مؤسسة الترقية العقارية (AADL)', startDate: '2022-10-10', deadline: '2024-12-20', budget: 5000000000, status: 'قيد التنفيذ' },
+  { title: 'تهيئة المنطقة الصناعية بحاسي مسعود', client: 'سوناطراك', startDate: '2024-03-01', deadline: '2025-09-15', budget: 2800000000, status: 'بدأ حديثاً' },
+  { title: 'توسعة مطار تقرت', client: 'وزارة النقل', startDate: '2025-01-10', deadline: '2026-11-30', budget: 1900000000, status: 'في مرحلة الدراسات' },
+  { title: 'رصف طرق بلدية تقرت', client: 'بلدية تقرت', startDate: '2024-05-20', deadline: '2024-10-15', budget: 180000000, status: 'قيد التنفيذ' },
+  { title: 'إنجاز قنوات الصرف الصحي (حاسي مسعود)', client: 'شركة المياه والتطهير (SEACO)', startDate: '2023-11-01', deadline: '2025-02-28', budget: 620000000, status: 'قيد التنفيذ' },
+  { title: 'تزويد المناطق النائية بالكهرباء (تقرت)', client: 'شركة سونلغاز', startDate: '2024-02-14', deadline: '2025-01-31', budget: 350000000, status: 'قيد التنفيذ' },
+  { title: 'صيانة شبكة الطرقات الجهوية', client: 'مديرية التجهيزات العمومية', startDate: '2024-06-01', deadline: '2024-12-15', budget: 120000000, status: 'قيد التنفيذ' }
 ];
 
-const MOCK_EQUIPMENT = [
-  { name: 'Excavatrice CAT 320', type: 'Terrassement', site: 'Route Hassi Messaoud', status: 'Operational', health: 85 },
-  { name: 'Bulldozer Komatsu D155', type: 'Terrassement', site: 'Pipeline Adrar', status: 'Maintenance', health: 40 },
-  { name: 'Grue Mobile Liebherr LTM', type: 'Grue Lourde', site: 'Facility Petroliere Ouargla', status: 'Operational', health: 92 },
-  { name: 'Niveleuse CAT 140K', type: 'Voirie', site: 'Route El Meniaa', status: 'Operational', health: 78 },
-  { name: 'Compacteur Bomag BW213', type: 'Compactage', site: 'Developpement Urbain Touggourt', status: 'Operational', health: 88 },
-  { name: 'Camion Benne Renault K440', type: 'Transport', site: 'Route Hassi Messaoud', status: 'Operational', health: 95 },
-  { name: 'Camion Benne Mercedes Arocs', type: 'Transport', site: 'Route El Oued', status: 'Maintenance', health: 35 },
-  { name: 'Chargeuse Volvo L150H', type: 'Terrassement', site: 'Pipeline Adrar', status: 'Standby', health: 100 },
-  { name: 'Generateur Electrique 500kVA', type: 'Energie', site: 'Facility Petroliere Ouargla', status: 'Operational', health: 90 },
-  { name: 'Pompe a Beton Putzmeister', type: 'Logistique', site: 'Developpement Urbain Touggourt', status: 'Operational', health: 82 },
-  // Additional Equipment
-  { name: 'Excavatrice Hyundai 220LC', type: 'Terrassement', site: 'Route El Meniaa', status: 'Operational', health: 75 },
-  { name: 'Bulldozer CAT D8T', type: 'Terrassement', site: 'Route Hassi Messaoud', status: 'Operational', health: 88 },
-  { name: 'Grue a Tour Potain', type: 'Grue Lourde', site: 'Developpement Urbain Touggourt', status: 'Operational', health: 95 },
-  { name: 'Chargeuse CAT 950 GC', type: 'Terrassement', site: 'Atelier Central Touggourt', status: 'Maintenance', health: 45 },
-  { name: 'Camion Plateau MAN TGS', type: 'Transport', site: 'Pipeline Adrar', status: 'Operational', health: 80 },
-  { name: 'Camion Citerne Mercedes', type: 'Transport', site: 'Facility Petroliere Ouargla', status: 'Operational', health: 70 },
-  { name: 'Compresseur Atlas Copco', type: 'Energie', site: 'Route El Oued', status: 'Operational', health: 90 },
-  { name: 'Niveleuse Komatsu GD655', type: 'Voirie', site: 'Route Hassi Messaoud', status: 'Standby', health: 98 },
-  { name: 'Tractopelle JCB 3CX', type: 'Terrassement', site: 'Developpement Urbain Touggourt', status: 'Operational', health: 85 },
-  { name: 'Chariot Elevateur Manitou', type: 'Logistique', site: 'Atelier Central Touggourt', status: 'Operational', health: 92 },
-  { name: 'Poste a Souder Lincoln', type: 'Energie', site: 'Pipeline Adrar', status: 'Operational', health: 88 },
-  { name: 'Compacteur Mixte Dynapac', type: 'Compactage', site: 'Route El Meniaa', status: 'Maintenance', health: 50 },
-  { name: 'Finisseur Vögele Super 1800', type: 'Voirie', site: 'Route Hassi Messaoud', status: 'Operational', health: 82 },
-  { name: 'Camion Malaxeur Iveco', type: 'Transport', site: 'Developpement Urbain Touggourt', status: 'Standby', health: 100 },
-  { name: 'Excavatrice Mini Bobcat E50', type: 'Terrassement', site: 'Route El Oued', status: 'Operational', health: 89 }
+const MOCK_MACHINES = [
+  { name: 'حفارة كاتربيلر', model: '320D', serialNumber: 'CAT-2381-K', purchaseDate: '2021-05-10', status: 'تشغيلية', location: 'موقع الطريق الوطني 1' },
+  { name: 'جرافة كوماتسو', model: 'D65EX-16', serialNumber: 'KOM-9942-L', purchaseDate: '2020-09-22', status: 'تشغيلية', location: 'موقع سد تيلاتو' },
+  { name: 'شاحنة مرسيدس أكتروس', model: '3344', serialNumber: 'MER-4512-A', purchaseDate: '2019-11-03', status: 'تشغيلية', location: 'مستودع تقرت' },
+  { name: 'رافعة شوكية', model: 'Hyster H50FT', serialNumber: 'HYS-7823-B', purchaseDate: '2022-02-14', status: 'تحت الصيانة', location: 'ورشة صيانة حاسي مسعود' },
+  { name: 'ضاغطة تربة', model: 'Bomag BW213', serialNumber: 'BOM-1147-C', purchaseDate: '2021-08-30', status: 'تشغيلية', location: 'موقع الطريق الوطني 1' },
+  { name: 'خلاطة إسمنت ثابتة', model: 'Schwing Stetter M1', serialNumber: 'SCH-6612-D', purchaseDate: '2018-12-01', status: 'تشغيلية', location: 'مصنع الخرسانة - تقرت' },
+  { name: 'حفارة هيتاشي', model: 'ZX200-6', serialNumber: 'HIT-8853-E', purchaseDate: '2023-01-15', status: 'تشغيلية', location: 'موقع المجمع السكني 600 مسكن' },
+  { name: 'لودر كاتربيلر', model: '966M', serialNumber: 'CAT-3721-F', purchaseDate: '2020-06-18', status: 'تشغيلية', location: 'موقع الطريق الوطني 1' },
+  { name: 'شاحنة قلاب إيفيكو', model: 'Trakker 720', serialNumber: 'IVE-2294-G', purchaseDate: '2017-10-10', status: 'متوقفة للإيجار', location: 'مستودع تقرت' },
+  { name: 'مدحلة أسفلت', model: 'Hamm HD+ 90', serialNumber: 'HAM-5410-H', purchaseDate: '2022-03-27', status: 'تشغيلية', location: 'موقع تهيئة المنطقة الصناعية' },
+  { name: 'جرار زراعي (للمساعدة)', model: 'New Holland T7.210', serialNumber: 'NEW-3681-I', purchaseDate: '2016-07-05', status: 'تحت الصيانة', location: 'ورشة الميكانيك' },
+  { name: 'مولد كهربائي متنقل', model: 'Caterpillar XQP300', serialNumber: 'GEN-2569-J', purchaseDate: '2021-12-12', status: 'تشغيلية', location: 'موقع سد تيلاتو' },
+  { name: 'شاحنة صهريج مياه', model: 'Mercedes-Benz 1823', serialNumber: 'TAN-9410-K', purchaseDate: '2019-04-25', status: 'تشغيلية', location: 'موقع الطريق الوطني 1' },
+  { name: 'كسارة حجر متنقلة', model: 'Metso LT106', serialNumber: 'MET-6732-L', purchaseDate: '2020-08-19', status: 'تشغيلية', location: 'موقع مجمع السكني' },
+  { name: 'رافعة برجية', model: 'Potain MD 560', serialNumber: 'POT-1174-M', purchaseDate: '2022-09-04', status: 'تشغيلية', location: 'موقع سكني 600 مسكن' }
 ];
 
-export const seedDatabase = async () => {
-  console.log("Seeding database with EXTREME data...");
+const MOCK_MATERIALS = [
+  { name: 'إسمنت بورتلاندي', unit: 'طن', currentQuantity: 850, minQuantity: 120, supplier: 'مجمع الإسمنت الجزائر (GICA)', lastDelivery: '2025-04-10' },
+  { name: 'حديد تسليح (فئة 500)', unit: 'طن', currentQuantity: 270, minQuantity: 40, supplier: 'شركة حديد الجزائر (IMETAL)', lastDelivery: '2025-04-05' },
+  { name: 'الرمل النظيف', unit: 'متر مكعب', currentQuantity: 1600, minQuantity: 200, supplier: 'مقاولة الرمال البيضاء - تقرت', lastDelivery: '2025-04-12' },
+  { name: 'وقود الديزل', unit: 'لتر', currentQuantity: 6200, minQuantity: 800, supplier: 'سوناطراك', lastDelivery: '2025-04-08' },
+  { name: 'زيت المحركات 15W40', unit: 'لتر', currentQuantity: 380, minQuantity: 60, supplier: 'موبيليس', lastDelivery: '2025-03-25' },
+  { name: 'قوالب صب الخرسانة', unit: 'قطعة', currentQuantity: 1200, minQuantity: 300, supplier: 'الشركة الوطنية للصناعة المعدنية', lastDelivery: '2025-04-01' },
+  { name: 'مسامير وبراغي (متنوعة)', unit: 'كيلوغرام', currentQuantity: 520, minQuantity: 80, supplier: 'مؤسسة مستودعات البناء - حاسي مسعود', lastDelivery: '2025-03-28' },
+  { name: 'أنابيب PVC للصرف', unit: 'متر طولي', currentQuantity: 3400, minQuantity: 500, supplier: 'مصنع الأنابيب الجزائري (ANAB)', lastDelivery: '2025-04-03' }
+];
+
+export const seedDatabase = async (adminEmail) => {
+  console.log("Seeding database with realistic Arabic data...");
   const batch = writeBatch(db);
 
   try {
-    for (const worker of MOCK_WORKERS) {
-      const docRef = collection(db, 'workers');
-      addDoc(docRef, worker);
+    // 1. Add admin to 'admins' collection
+    if (adminEmail) {
+      const adminRef = doc(db, 'admins', adminEmail);
+      batch.set(adminRef, { email: adminRef.id, createdAt: new Date().toISOString() });
     }
-    for (const project of MOCK_PROJECTS) {
-      const docRef = collection(db, 'projects');
-      addDoc(docRef, project);
-    }
-    for (const eq of MOCK_EQUIPMENT) {
-      const docRef = collection(db, 'equipment');
-      addDoc(docRef, eq);
-    }
+
+    // 2. Add Employees
+    MOCK_EMPLOYEES.forEach(emp => {
+      const docRef = doc(collection(db, 'employees'));
+      batch.set(docRef, emp);
+    });
+
+    // 3. Add Projects
+    MOCK_PROJECTS.forEach(proj => {
+      const docRef = doc(collection(db, 'projects'));
+      batch.set(docRef, proj);
+    });
+
+    // 4. Add Machines
+    MOCK_MACHINES.forEach(machine => {
+      const docRef = doc(collection(db, 'machines'));
+      batch.set(docRef, machine);
+    });
+
+    // 5. Add Materials
+    MOCK_MATERIALS.forEach(material => {
+      const docRef = doc(collection(db, 'materials'));
+      batch.set(docRef, material);
+    });
+
+    await batch.commit();
     console.log("Database seeded successfully!");
-    alert("تم إضافة أكثر من 60 عنصر بنجاح! (عمال، آلات، مشاريع)");
+    alert("تم إضافة أكثر من 50 عنصر بنجاح! (عمال، آلات، مشاريع، مواد)");
   } catch (error) {
     console.error("Error seeding database: ", error);
     alert("حدث خطأ أثناء إضافة البيانات: " + error.message);

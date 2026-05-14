@@ -8,44 +8,67 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function isAdmin() {
+      return isAuth() && exists(/databases/$(database)/documents/admins/$(request.auth.token.email));
+    }
+
+    // ─── Admins Collection (Publicly readable to check status, writable by admins) ─
+    match /admins/{email} {
+      allow read: if isAuth();
+      allow write: if isAdmin();
+    }
+
     // ─── Public collections (read-only for everyone) ─────────────────────
-    // Services, Projects, Equipment pages — data shown to all visitors
     match /services/{doc} {
       allow read: if true;
-      allow write: if isAuth();
+      allow write: if isAdmin();
     }
 
     match /projects/{doc} {
       allow read: if true;
-      allow write: if isAuth();
+      allow write: if isAdmin();
     }
 
     match /equipment/{doc} {
       allow read: if true;
-      allow write: if isAuth();
+      allow write: if isAdmin();
+    }
+
+    match /machines/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /materials/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
     // ─── Contact form — anyone can submit, only admin can read ───────────
     match /contacts/{doc} {
-      allow create: if true;            // public form submission
-      allow read, update, delete: if isAuth();
+      allow create: if true;            
+      allow read, update, delete: if isAdmin();
     }
 
-    // ─── Admin-only collections (requires login) ─────────────────────────
+    // ─── Admin-only collections (requires login as admin) ────────────────
     match /workers/{doc} {
-      allow read, write: if isAuth();
+      allow read, write: if isAdmin();
+    }
+    
+    match /employees/{doc} {
+      allow read, write: if isAdmin();
     }
 
     match /payroll/{doc} {
-      allow read, write: if isAuth();
+      allow read, write: if isAdmin();
     }
 
     match /accounting/{doc} {
-      allow read, write: if isAuth();
+      allow read, write: if isAdmin();
     }
 
     match /tracking/{doc} {
-      allow read, write: if isAuth();
+      allow read, write: if isAdmin();
     }
 
     match /users/{userId} {

@@ -13,7 +13,7 @@ import ChatBot from './components/ChatBot';
 
 // Admin Pages (static - keep auth fast)
 import AdminLogin   from './pages/Admin/AdminLogin';
-import Dashboard    from './pages/Admin/Dashboard';
+import AdminDashboard from './pages/Admin/AdminDashboard';
 import Workers      from './pages/Admin/Workers';
 import Tracking     from './pages/Admin/Tracking';
 import Accounting   from './pages/Admin/Accounting';
@@ -76,7 +76,7 @@ function App() {
                     {/* Protected Admin Routes */}
                     <Route element={<ProtectedRoute />}>
                       <Route element={<AdminLayout />}>
-                        <Route path="/admin/dashboard"  element={<Dashboard />} />
+                        <Route path="/admin/dashboard"  element={<AdminDashboard />} />
                         <Route path="/admin/workers"    element={<Workers />} />
                         <Route path="/admin/payroll"    element={<Payroll />} />
                         <Route path="/admin/projects"   element={<ProjectsList />} />
