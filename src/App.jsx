@@ -1,7 +1,8 @@
 import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
-import { ThemeProvider, createTheme, CssBaseline, CircularProgress, Box } from '@mui/material';
+import { ThemeProvider, CssBaseline, CircularProgress, Box } from '@mui/material';
+import { ThemeContextProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
@@ -29,42 +30,6 @@ const EquipmentPublic = lazy(() => import('./pages/Public/Equipment'));
 const Contact         = lazy(() => import('./pages/Public/Contact'));
 const AIAssistantPage = lazy(() => import('./pages/Public/AIAssistantPage'));
 
-// MUI Theme
-const theme = createTheme({
-  palette: {
-    primary: { main: '#004d28', light: '#006233', dark: '#00381d' },
-    secondary: { main: '#d4af37', light: '#e5c158', dark: '#b89327' },
-    background: { default: '#fafaf9', paper: '#ffffff' },
-    text: { primary: '#1e293b', secondary: '#64748b' }
-  },
-  typography: {
-    fontFamily: '"Inter", "Outfit", "Roboto", sans-serif',
-    h1: { fontFamily: '"Outfit", sans-serif', fontWeight: 800 },
-    h2: { fontFamily: '"Outfit", sans-serif', fontWeight: 700 },
-    h3: { fontFamily: '"Outfit", sans-serif', fontWeight: 700 },
-    h4: { fontFamily: '"Outfit", sans-serif', fontWeight: 700 },
-    button: { fontFamily: '"Outfit", sans-serif', fontWeight: 600 }
-  },
-  shape: { borderRadius: 16 },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: { textTransform: 'none', borderRadius: 24, padding: '10px 24px', boxShadow: 'none' },
-        containedPrimary: {
-          background: 'linear-gradient(135deg, #006233, #004d28)',
-          boxShadow: '0 4px 15px rgba(0, 77, 40, 0.2)',
-          '&:hover': { transform: 'translateY(-2px)', boxShadow: '0 8px 25px rgba(0, 77, 40, 0.3)' }
-        }
-      },
-    },
-    MuiPaper: {
-      styleOverrides: {
-        root: { backgroundImage: 'none' }
-      }
-    }
-  },
-});
-
 const PageLoader = () => (
   <Box sx={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
     <CircularProgress sx={{ color: '#006233' }} />
@@ -87,41 +52,46 @@ const PublicLayout = () => (
 function App() {
   return (
     <HelmetProvider>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <AuthProvider>
-          <ToastProvider>
-            <Router>
-              <Routes>
-                {/* Public Routes */}
-                <Route element={<PublicLayout />}>
-                  <Route path="/"             element={<Home />} />
-                  <Route path="/about"        element={<About />} />
-                  <Route path="/services"     element={<Services />} />
-                  <Route path="/projects"     element={<Projects />} />
-                  <Route path="/equipment"    element={<EquipmentPublic />} />
-                  <Route path="/contact"      element={<Contact />} />
-                  <Route path="/ai-assistant" element={<AIAssistantPage />} />
-                  <Route path="/admin/login"  element={<AdminLogin />} />
-                </Route>
+      {/* ThemeContextProvider builds the MUI theme and passes it via render-prop */}
+      <ThemeContextProvider>
+        {(theme) => (
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <AuthProvider>
+              <ToastProvider>
+                <Router>
+                  <Routes>
+                    {/* Public Routes */}
+                    <Route element={<PublicLayout />}>
+                      <Route path="/"             element={<Home />} />
+                      <Route path="/about"        element={<About />} />
+                      <Route path="/services"     element={<Services />} />
+                      <Route path="/projects"     element={<Projects />} />
+                      <Route path="/equipment"    element={<EquipmentPublic />} />
+                      <Route path="/contact"      element={<Contact />} />
+                      <Route path="/ai-assistant" element={<AIAssistantPage />} />
+                      <Route path="/admin/login"  element={<AdminLogin />} />
+                    </Route>
 
-                {/* Protected Admin Routes */}
-                <Route element={<ProtectedRoute />}>
-                  <Route element={<AdminLayout />}>
-                    <Route path="/admin/dashboard"  element={<Dashboard />} />
-                    <Route path="/admin/workers"    element={<Workers />} />
-                    <Route path="/admin/payroll"    element={<Payroll />} />
-                    <Route path="/admin/projects"   element={<ProjectsList />} />
-                    <Route path="/admin/equipment"  element={<Equipment />} />
-                    <Route path="/admin/tracking"   element={<Tracking />} />
-                    <Route path="/admin/accounting" element={<Accounting />} />
-                  </Route>
-                </Route>
-              </Routes>
-            </Router>
-          </ToastProvider>
-        </AuthProvider>
-      </ThemeProvider>
+                    {/* Protected Admin Routes */}
+                    <Route element={<ProtectedRoute />}>
+                      <Route element={<AdminLayout />}>
+                        <Route path="/admin/dashboard"  element={<Dashboard />} />
+                        <Route path="/admin/workers"    element={<Workers />} />
+                        <Route path="/admin/payroll"    element={<Payroll />} />
+                        <Route path="/admin/projects"   element={<ProjectsList />} />
+                        <Route path="/admin/equipment"  element={<Equipment />} />
+                        <Route path="/admin/tracking"   element={<Tracking />} />
+                        <Route path="/admin/accounting" element={<Accounting />} />
+                      </Route>
+                    </Route>
+                  </Routes>
+                </Router>
+              </ToastProvider>
+            </AuthProvider>
+          </ThemeProvider>
+        )}
+      </ThemeContextProvider>
     </HelmetProvider>
   );
 }
